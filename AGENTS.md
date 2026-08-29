@@ -1,10 +1,10 @@
-# AGENTS.md — waldur-site-agent-{{PROVIDER}}
+# AGENTS.md — waldur-site-agent-hetzner
 
 > **Status: EXPERIMENT.** Öffentlicher Versuch, Fortführung offen.
 > Keine Produktionsnutzung. Kein offizielles Waldur-Projekt.
 
 Dieses Repo enthält genau EIN Waldur-Site-Agent-Plugin:
-**{{PROVIDER_NAME}}** (SDK: `{{SDK_PACKAGE}}`). Repo-übergreifende
+**hetzner** (SDK: `hcloud`). Repo-übergreifende
 Regeln, Contract und Testkit liegen im Meta-Repo `waldur-multicloud` —
 dessen AGENTS.md gilt hier mit, insbesondere Public-Repo-Hygiene,
 Definition of Done und Verbote.
@@ -21,7 +21,7 @@ Definition of Done und Verbote.
 ## Struktur
 
 ```
-waldur_site_agent_{{PROVIDER}}/
+waldur_site_agent_hetzner/
 ├── backend.py        # Backend-Klasse gegen Contract
 ├── client.py         # dünner API/SDK-Wrapper
 tests/
