@@ -1,7 +1,8 @@
 # Waldur Site Agent for Hetzner Cloud
 
-> **EXPERIMENT** — This is not an official Waldur or Hetzner project and is
-> not intended for production use yet.
+> **EXPERIMENT** — Part of the public [waldur-multicloud](../waldur-multicloud)
+> experiment. Its continuation is undecided; this is not for production use and
+> is not affiliated with Waldur, OpenNode, or Hetzner.
 
 A `waldur-site-agent` backend that provisions Hetzner Cloud servers. It
 supports idempotent creation/adoption, deletion, pause/downscale, restore,
