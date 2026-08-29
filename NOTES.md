@@ -8,7 +8,7 @@ Public finding log for this plugin. No internal information.
   power-on. Every mutation is waited with a configured finite retry count;
   adoption also has a bounded server-state poll.
 - `waldur-resource-uuid` is the deterministic ownership/adoption label.
-  Hetzner names are unique within a project but are not treated as identity.
+  Hetzner names are not uniquely enforced and are not treated as identity.
 - A provider 404 during lookup or deletion is treated as successful absence.
 - The SDK performs bounded retries for transport errors, selected gateway
   responses, conflicts, and rate limits. No unbounded plugin retry is added.
