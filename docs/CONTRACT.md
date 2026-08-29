@@ -1,3 +1,4 @@
+<!-- Vendored from waldur-multicloud tag contract-v1, commit 1aadee0f44ba1dd268d589737cdfc8c821e69127. -->
 # Waldur Site Agent – Provider-Contract
 
 ## Referenzstand
