@@ -1,0 +1,3 @@
+# Acceptance-Tests gehören der Rolle test-engineer; Implementer-MRs,
+# die hier ändern, brauchen explizites Menschen-Review (Sperr-Befund).
+/tests/acceptance/  @GITHUB-HANDLE

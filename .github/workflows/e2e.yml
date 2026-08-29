@@ -1,0 +1,24 @@
+name: e2e
+on:
+  workflow_dispatch:      # bewusst KEIN pull_request / pull_request_target:
+                          # echte Provider-Credentials duerfen nie fuer
+                          # Fremdcode aus Forks verfuegbar sein.
+permissions:
+  contents: read
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    environment: e2e      # Secrets + Required Reviewers hier konfigurieren
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - run: uv sync
+      - name: E2E gegen echten Provider-Account (TTL-getaggte Ressourcen)
+        env:
+          PROVIDER_TOKEN: ${{ secrets.PROVIDER_TOKEN }}
+        run: uv run pytest -m e2e
+      - name: Cleanup per TTL-Tag (laeuft auch nach Fehlschlag)
+        if: always()
+        env:
+          PROVIDER_TOKEN: ${{ secrets.PROVIDER_TOKEN }}
+        run: uv run python -m tests.e2e_cleanup
