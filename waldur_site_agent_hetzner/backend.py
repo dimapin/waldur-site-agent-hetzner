@@ -30,6 +30,7 @@ class HetznerBackendSettingsSchema(PluginBackendSettingsSchema):
     timeout_seconds: float = Field(default=30.0, gt=0, le=300)
     poll_interval_seconds: float = Field(default=1.0, gt=0, le=30)
     action_max_retries: int = Field(default=120, ge=1, le=3600)
+    soft_delete: bool = False
     labels: dict[str, str] = Field(default_factory=dict)
 
     @field_validator("token", "server_type", "image", "location")
@@ -171,8 +172,14 @@ class HetznerBackend(BaseBackend):
     def delete_resource(self, waldur_resource: Any, **kwargs: str) -> None:
         del kwargs
         resource_id = str(getattr(waldur_resource, "backend_id", ""))
-        if resource_id.strip():
+        if not resource_id.strip() or self.client.get_resource(resource_id) is None:
+            return None
+        self._pre_delete_resource(waldur_resource)
+        if self.settings.soft_delete:
+            self.client.stop_server(resource_id)
+        else:
             self.client.delete_resource(resource_id)
+        self.post_delete_resource(waldur_resource)
         return None
 
     def downscale_resource(self, resource_backend_id: str) -> bool:

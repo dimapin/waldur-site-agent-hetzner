@@ -113,13 +113,37 @@ def test_create_propagates_failure_without_adoptable_server():
         backend.create_resource(resource())
 
 
-def test_delete_empty_id_is_noop_and_delete_delegates():
+def test_delete_empty_id_is_noop_and_delete_uses_lifecycle_hooks():
     backend = HetznerBackend(settings(), {})
     backend.client = Mock()
+    backend._pre_delete_resource = Mock()
+    backend.post_delete_resource = Mock()
     backend.delete_resource(resource())
     backend.client.delete_resource.assert_not_called()
-    backend.delete_resource(resource("42"))
+    backend._pre_delete_resource.assert_not_called()
+    backend.post_delete_resource.assert_not_called()
+
+    deleted_resource = resource("42")
+    backend.delete_resource(deleted_resource)
+    backend.client.get_resource.assert_called_once_with("42")
     backend.client.delete_resource.assert_called_once_with("42")
+    backend._pre_delete_resource.assert_called_once_with(deleted_resource)
+    backend.post_delete_resource.assert_called_once_with(deleted_resource)
+
+
+def test_soft_delete_stops_server_and_uses_lifecycle_hooks():
+    backend = HetznerBackend(settings(soft_delete=True), {})
+    backend.client = Mock()
+    backend._pre_delete_resource = Mock()
+    backend.post_delete_resource = Mock()
+
+    deleted_resource = resource("42")
+    backend.delete_resource(deleted_resource)
+
+    backend.client.stop_server.assert_called_once_with("42")
+    backend.client.delete_resource.assert_not_called()
+    backend._pre_delete_resource.assert_called_once_with(deleted_resource)
+    backend.post_delete_resource.assert_called_once_with(deleted_resource)
 
 
 def test_lifecycle_delegates_to_client():
