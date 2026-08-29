@@ -138,7 +138,7 @@ class HetznerClient(BaseClient):
             server = self._server_by_id(resource_id)
             if server is None:
                 raise BackendError("Adopted Hetzner server disappeared")
-            if server.status in {"running", "off"}:
+            if server.status == "running":
                 return server
             if server.status in {"deleting", "unknown"}:
                 raise BackendError("Adopted Hetzner server is not usable")
