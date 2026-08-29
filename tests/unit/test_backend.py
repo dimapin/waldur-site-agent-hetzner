@@ -2,6 +2,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
+from requests.exceptions import Timeout
 from waldur_site_agent.backend.exceptions import BackendError, ConfigurationError
 
 from waldur_site_agent_hetzner.backend import (
@@ -52,6 +53,12 @@ def test_settings_repr_redacts_secrets():
 def test_settings_reject_reserved_label():
     with pytest.raises(ConfigurationError):
         HetznerBackend(settings(labels={"waldur-resource-uuid": "mine"}), {})
+
+
+def test_ping_returns_false_for_transport_failure():
+    backend = HetznerBackend(settings(), {})
+    backend.client._client.servers.get_list = Mock(side_effect=Timeout("timeout"))
+    assert backend.ping() is False
 
 
 def test_create_adopts_by_uuid_without_creating():

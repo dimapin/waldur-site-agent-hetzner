@@ -11,6 +11,7 @@ from hcloud.locations import Location
 from hcloud.server_types import ServerType
 from hcloud.servers import BoundServer
 from hcloud.ssh_keys import SSHKey
+from requests.exceptions import RequestException
 from waldur_site_agent.backend.clients import BaseClient
 from waldur_site_agent.backend.exceptions import BackendError
 from waldur_site_agent.backend.structures import Association, ClientResource
@@ -64,20 +65,20 @@ class HetznerClient(BaseClient):
         return f"HetznerClient(api_endpoint={self.api_endpoint!r})"
 
     @staticmethod
-    def _failure(operation: str, exc: HCloudException) -> BackendError:
+    def _failure(operation: str, exc: Exception) -> BackendError:
         code = getattr(exc, "code", "provider_error")
         return BackendError(f"Hetzner {operation} failed (code: {code})")
 
     def _wait(self, action: Any, operation: str) -> None:
         try:
             action.wait_until_finished(max_retries=self.action_max_retries)
-        except HCloudException as exc:
+        except (HCloudException, RequestException) as exc:
             raise self._failure(operation, exc) from exc
 
     def ping(self) -> bool:
         try:
             self._client.servers.get_list(page=1, per_page=1)
-        except HCloudException as exc:
+        except (HCloudException, RequestException) as exc:
             raise self._failure("health check", exc) from exc
         return True
 
@@ -92,7 +93,7 @@ class HetznerClient(BaseClient):
             if _is_not_found(exc):
                 return None
             raise self._failure("server lookup", exc) from exc
-        except HCloudException as exc:
+        except (HCloudException, RequestException) as exc:
             raise self._failure("server lookup", exc) from exc
 
     def find_by_waldur_uuid(self, resource_uuid: str) -> BoundServer | None:
@@ -100,7 +101,7 @@ class HetznerClient(BaseClient):
             servers = self._client.servers.get_all(
                 label_selector=f"{WALDUR_UUID_LABEL}={resource_uuid}"
             )
-        except HCloudException as exc:
+        except (HCloudException, RequestException) as exc:
             raise self._failure("adoption lookup", exc) from exc
         if len(servers) > 1:
             raise BackendError(
@@ -121,7 +122,7 @@ class HetznerClient(BaseClient):
     def list_resources(self) -> list[ClientResource]:
         try:
             servers = self._client.servers.get_all(label_selector=WALDUR_UUID_LABEL)
-        except HCloudException as exc:
+        except (HCloudException, RequestException) as exc:
             raise self._failure("server listing", exc) from exc
         return [self._as_resource(server) for server in servers]
 
@@ -172,7 +173,7 @@ class HetznerClient(BaseClient):
             return response.server
         except BackendError:
             raise
-        except HCloudException as exc:
+        except (HCloudException, RequestException) as exc:
             raise self._failure("server creation", exc) from exc
 
     def create_resource(
@@ -203,7 +204,7 @@ class HetznerClient(BaseClient):
             raise self._failure("server deletion", exc) from exc
         except BackendError:
             raise
-        except HCloudException as exc:
+        except (HCloudException, RequestException) as exc:
             raise self._failure("server deletion", exc) from exc
         return name
 
@@ -215,7 +216,7 @@ class HetznerClient(BaseClient):
             return True
         try:
             self._wait(self._client.servers.shutdown(server), "server shutdown")
-        except HCloudException as exc:
+        except (HCloudException, RequestException) as exc:
             raise self._failure("server shutdown", exc) from exc
         return True
 
@@ -227,7 +228,7 @@ class HetznerClient(BaseClient):
             return True
         try:
             self._wait(self._client.servers.power_on(server), "server power-on")
-        except HCloudException as exc:
+        except (HCloudException, RequestException) as exc:
             raise self._failure("server power-on", exc) from exc
         return True
 

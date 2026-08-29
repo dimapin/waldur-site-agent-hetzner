@@ -3,6 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 from hcloud import APIException, HCloudException
+from requests.exceptions import Timeout
 from waldur_site_agent.backend.exceptions import BackendError
 
 from waldur_site_agent_hetzner.client import WALDUR_UUID_LABEL, HetznerClient
@@ -65,6 +66,21 @@ def test_wait_failure_is_sanitized(client):
     with pytest.raises(BackendError, match="server creation") as error:
         client._wait(action, "server creation")
     assert "very-secret-token" not in str(error.value)
+
+
+def test_wait_transport_failure_is_sanitized(client):
+    action = Mock()
+    action.wait_until_finished.side_effect = Timeout("provider timeout")
+    with pytest.raises(BackendError, match="server creation") as error:
+        client._wait(action, "server creation")
+    assert "provider timeout" not in str(error.value)
+
+
+def test_ping_transport_failure_is_sanitized(client, sdk):
+    sdk.servers.get_list.side_effect = Timeout("provider timeout")
+    with pytest.raises(BackendError, match="health check") as error:
+        client.ping()
+    assert "provider timeout" not in str(error.value)
 
 
 def test_lookup_404_is_absent(client, sdk):
