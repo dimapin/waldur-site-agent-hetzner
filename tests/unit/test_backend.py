@@ -116,6 +116,7 @@ def test_create_propagates_failure_without_adoptable_server():
 def test_delete_empty_id_is_noop_and_delete_uses_lifecycle_hooks():
     backend = HetznerBackend(settings(), {})
     backend.client = Mock()
+    backend.client.get_resource.return_value = SimpleNamespace(backend_id="42")
     backend._pre_delete_resource = Mock()
     backend.post_delete_resource = Mock()
     backend.delete_resource(resource())
@@ -134,6 +135,7 @@ def test_delete_empty_id_is_noop_and_delete_uses_lifecycle_hooks():
 def test_soft_delete_stops_server_and_uses_lifecycle_hooks():
     backend = HetznerBackend(settings(soft_delete=True), {})
     backend.client = Mock()
+    backend.client.get_resource.return_value = SimpleNamespace(backend_id="42")
     backend._pre_delete_resource = Mock()
     backend.post_delete_resource = Mock()
 
