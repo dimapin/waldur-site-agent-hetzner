@@ -62,7 +62,9 @@ class HetznerBackendSettingsSchema(PluginBackendSettingsSchema):
         if _RESERVED_LABELS.intersection(labels):
             raise ValueError("Waldur ownership labels are reserved")
         for key, value in labels.items():
-            if not _LABEL_KEY.fullmatch(key) or len(value) > 63:
+            if not _LABEL_KEY.fullmatch(key) or (
+                value and not _LABEL_KEY.fullmatch(value)
+            ):
                 raise ValueError("invalid Hetzner label")
         return labels
 
