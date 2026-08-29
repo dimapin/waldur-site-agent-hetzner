@@ -20,7 +20,7 @@ WALDUR_PROJECT_LABEL = "waldur-project"
 
 
 def _is_not_found(exc: APIException) -> bool:
-    return str(exc.code) == "404"
+    return str(exc.code) in {"404", "not_found"}
 
 
 class HetznerClient(BaseClient):
