@@ -1,0 +1,30 @@
+replicaCount: 1
+image:
+  repository: waldur-site-agent-hetzner
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+configSecret:
+  # Existing Secret containing a key named config.yaml. Keeping credentials
+  # outside Helm values prevents accidental inclusion in release metadata.
+  name: waldur-site-agent-hetzner
+  key: config.yaml
+mode: order_process
+resources: {}
+podAnnotations: {}
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+nodeSelector: {}
+tolerations: []
+affinity: {}
