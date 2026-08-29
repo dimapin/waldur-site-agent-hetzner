@@ -1,0 +1,4 @@
+Create the configuration Secret before installing:
+  kubectl create secret generic {{ .Values.configSecret.name }} --from-file=config.yaml=/path/to/config.yaml
+
+The pod runs as UID/GID 10001 with a read-only root filesystem.

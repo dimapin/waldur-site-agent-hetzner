@@ -1,0 +1,6 @@
+apiVersion: v2
+name: waldur-site-agent-hetzner
+description: Waldur Site Agent backend for Hetzner Cloud
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
